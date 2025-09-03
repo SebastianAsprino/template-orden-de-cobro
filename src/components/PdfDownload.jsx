@@ -2,7 +2,10 @@ import React from "react";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
-export default function PdfDownload({ filename = "orden-cobro.pdf", selector = "#orden-cobro" }) {
+export default function PdfDownload({
+	filename = "orden-cobro.pdf",
+	selector = "#orden-cobro",
+}) {
 	const handleDownload = async () => {
 		const element = document.querySelector(selector);
 		if (!element) {
@@ -10,10 +13,20 @@ export default function PdfDownload({ filename = "orden-cobro.pdf", selector = "
 			return;
 		}
 
-		const canvas = await html2canvas(element, { scale: 2, useCORS: true, allowTaint: true });
-		const imgData = canvas.toDataURL("image/png");
+		const canvas = await html2canvas(element, {
+			scale: 1.5, // antes estaba en 2
+			useCORS: true,
+			allowTaint: true,
+		});
 
-		const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+		const imgData = canvas.toDataURL("image/jpeg", 0.7);
+
+		const pdf = new jsPDF({
+			unit: "mm",
+			format: "letter",
+			orientation: "portrait",
+		});
+
 		const pdfWidth = pdf.internal.pageSize.getWidth();
 		const imgProps = pdf.getImageProperties(imgData);
 		const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
@@ -21,13 +34,22 @@ export default function PdfDownload({ filename = "orden-cobro.pdf", selector = "
 		let heightLeft = imgHeight;
 		let position = 0;
 
-		pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+		pdf.addImage(imgData, "JPEG", 0, position, pdfWidth, imgHeight, "", "FAST");
 		heightLeft -= pdf.internal.pageSize.getHeight();
 
 		while (heightLeft > 0) {
 			position = heightLeft - imgHeight;
 			pdf.addPage();
-			pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+			pdf.addImage(
+				imgData,
+				"JPEG",
+				0,
+				position,
+				pdfWidth,
+				imgHeight,
+				"",
+				"FAST"
+			);
 			heightLeft -= pdf.internal.pageSize.getHeight();
 		}
 
@@ -35,11 +57,9 @@ export default function PdfDownload({ filename = "orden-cobro.pdf", selector = "
 	};
 
 	return (
-		<button
-			className="boton"
-			onClick={handleDownload}
-		>
+		<button className="boton" onClick={handleDownload}>
 			Descargar PDF
 		</button>
 	);
 }
+
