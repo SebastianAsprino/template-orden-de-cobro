@@ -1,16 +1,153 @@
 ---
+import "./src/styles/global.css";
+import PdfDownload from "../components/PdfDownload.jsx";
 
+const items = [
+	{ description: "Servicio de Consultoría", quantity: 2, unitPrice: 500000 },
+	{ description: "Producto Ejemplo", quantity: 5, unitPrice: 200000 },
+];
+
+const subtotal = items.reduce(
+	(sum, item) => sum + item.quantity * item.unitPrice,
+	0,
+);
+const iva = subtotal * 0.19;
+const total = subtotal + iva;
+const today = new Date().toLocaleDateString("es-CO", {
+	year: "numeric",
+	month: "long",
+	day: "numeric",
+});
 ---
 
-<html lang="en">
+<!doctype html>
+<html lang="es">
 	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Orden de Cobro</title>
+		<link rel="stylesheet" href="/src/styles/global.css" />
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<div class="container" id="orden-cobro">
+			<!-- Encabezado -->
+			<div class="header">
+				<div>
+					<h1 class="title">Orden de Cobro</h1>
+					<p class="small muted">No. 001-2025</p>
+				</div>
+				<div class="text-right small">
+					<p class="bold">Fecha: {today}</p>
+					<p>Emisor: Empresa Ejemplo S.A.S</p>
+					<p>NIT: 123.456.789-0</p>
+					<p>Dirección: Calle 123 #45-67, Bogotá, Colombia</p>
+					<p>Teléfono: (601) 555-1234</p>
+				</div>
+			</div>
+
+			<!-- Información del Cliente -->
+			<div class="section">
+				<h2 class="subtitle">Información del Cliente</h2>
+				<p><strong>Nombre:</strong> Cliente Ejemplo</p>
+				<p><strong>Documento:</strong> C.C. 98.765.432</p>
+				<p><strong>Dirección:</strong> Carrera 10 #20-30, Medellín, Colombia</p>
+				<p><strong>Teléfono:</strong> (604) 555-9876</p>
+				<p><strong>Email:</strong> cliente@ejemplo.com</p>
+			</div>
+
+			<!-- Detalle de Items -->
+			<div class="section">
+				<h2 class="subtitle">Detalles de la Orden</h2>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Descripción</th>
+							<th>Cantidad</th>
+							<th>Valor Unitario</th>
+							<th>Subtotal</th>
+						</tr>
+					</thead>
+					<tbody>
+						{
+							items.map((item) => (
+								<tr>
+									<td>{item.description}</td>
+									<td>{item.quantity}</td>
+									<td>
+										{new Intl.NumberFormat("es-CO", {
+											style: "currency",
+											currency: "COP",
+										}).format(item.unitPrice)}
+									</td>
+									<td>
+										{new Intl.NumberFormat("es-CO", {
+											style: "currency",
+											currency: "COP",
+										}).format(item.quantity * item.unitPrice)}
+									</td>
+								</tr>
+							))
+						}
+					</tbody>
+				</table>
+			</div>
+
+			<!-- Totales -->
+			<div class="totals">
+				<div>
+					<div class="row">
+						<span>Subtotal:</span>
+						<span>
+							{
+								new Intl.NumberFormat("es-CO", {
+									style: "currency",
+									currency: "COP",
+								}).format(subtotal)
+							}
+						</span>
+					</div>
+					<div class="row">
+						<span>IVA (19%):</span>
+						<span>
+							{
+								new Intl.NumberFormat("es-CO", {
+									style: "currency",
+									currency: "COP",
+								}).format(iva)
+							}
+						</span>
+					</div>
+					<div class="row bold total">
+						<span>Total:</span>
+						<span>
+							{
+								new Intl.NumberFormat("es-CO", {
+									style: "currency",
+									currency: "COP",
+								}).format(total)
+							}
+						</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Notas -->
+			<div class="section">
+				<h2 class="subtitle">Notas</h2>
+				<p>
+					Pago a realizar dentro de los 30 días siguientes a la emisión de esta
+					orden.
+				</p>
+				<p>
+					Por favor realizar el pago a la cuenta bancaria: Banco Ejemplo, Cuenta
+					de Ahorros No. 123-456-789.
+				</p>
+			</div>
+		</div>
+
+		<!-- Botón de Descarga (no aparece en PDF) -->
+		<div class="no-print">
+			<PdfDownload client:load />
+		</div>
 	</body>
 </html>
