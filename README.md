@@ -1,47 +1,65 @@
-# Astro Starter Kit: Minimal
+# Plantilla de Orden de Cobro
 
-```sh
-bun create astro@latest -- --template minimal
-```
+Plantilla web para generar **órdenes de cobro** en pesos colombianos (COP) y descargarlas como PDF
+con un clic. Construida con [Astro](https://astro.build) y un componente interactivo de React.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/minimal)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/minimal)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/minimal/devcontainer.json)
+## Características
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+- Documento con encabezado del emisor, datos del cliente, tabla de ítems, totales y notas de pago.
+- Cálculo automático de subtotal por ítem, subtotal general, IVA (19 %) y total en tiempo de build.
+- Formato de moneda colombiano (`Intl.NumberFormat("es-CO", { currency: "COP" })`) y fecha del día en español.
+- Botón **Descargar PDF**: captura el documento con `html2canvas`, lo convierte a JPEG comprimido y
+  lo inserta en un PDF tamaño carta con `jsPDF`, paginando automáticamente si el contenido es largo.
+  Muestra un estado "Generando PDF..." y avisa si la generación falla.
+- El botón se oculta al imprimir (`@media print`), así que también se puede imprimir desde el navegador.
 
-## 🚀 Project Structure
+## Stack
 
-Inside of your Astro project, you'll see the following folders and files:
+- Astro 5 (salida estática)
+- React 19 (isla `client:load` para el botón de descarga)
+- jsPDF + html2canvas
+- CSS plano (`src/styles/global.css`); el plugin de Tailwind CSS 4 está configurado para futuras vistas
+- [Bun](https://bun.sh) como gestor de paquetes (`bun.lock`)
+
+## Estructura
 
 ```text
-/
-├── public/
+.
+├── public/                       # Archivos estáticos (favicon)
 ├── src/
-│   └── pages/
-│       └── index.astro
+│   ├── components/PdfDownload.jsx  # Botón que exporta #orden-cobro a PDF
+│   ├── pages/index.astro           # La orden de cobro: datos, cálculos y maquetación
+│   └── styles/global.css           # Estilos del documento y reglas de impresión
+├── astro.config.mjs              # Integración de React y plugin de Tailwind
 └── package.json
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Uso
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+```sh
+bun install       # Instala dependencias
+bun run dev       # Servidor de desarrollo en http://localhost:4321
+bun run build     # Build estático en ./dist
+bun run preview   # Sirve el build localmente
+```
 
-Any static assets, like images, can be placed in the `public/` directory.
+## Personalizar la orden
 
-## 🧞 Commands
+Todo el contenido está en `src/pages/index.astro`:
 
-All commands are run from the root of the project, from a terminal:
+- **Ítems**: edita el arreglo `items` (`description`, `quantity`, `unitPrice`). Los totales se recalculan solos.
+- **IVA**: cambia la constante `IVA_RATE`.
+- **Emisor, cliente, número de orden y notas**: edita el HTML del documento.
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `bun install`             | Installs dependencies                            |
-| `bun dev`             | Starts local dev server at `localhost:4321`      |
-| `bun build`           | Build your production site to `./dist/`          |
-| `bun preview`         | Preview your build locally, before deploying     |
-| `bun astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `bun astro -- --help` | Get help using the Astro CLI                     |
+El componente `PdfDownload` acepta las props `filename` (por defecto `orden-cobro.pdf`) y
+`selector` (por defecto `#orden-cobro`) para exportar otro elemento o cambiar el nombre del archivo.
 
-## 👀 Want to learn more?
+## Despliegue
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+`bun run build` genera un sitio estático en `dist/` que puede publicarse en cualquier hosting
+estático (Vercel, Netlify, GitHub Pages, Cloudflare Pages, etc.).
+
+## Integración continua
+
+`.github/workflows/ci.yml` instala dependencias con Bun y ejecuta `bun run build` en cada push y
+pull request a `master`.

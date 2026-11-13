@@ -89,12 +89,6 @@ body {
   font-size: 1.1rem;
 }
 
-.center {
-  text-align: center;
-  margin-top: 1.5rem;
-}
-
-
 .boton {
   position: fixed;      /* siempre fijo en pantalla */
   bottom: 20px;         /* separado 20px del fondo */
@@ -110,17 +104,15 @@ body {
   z-index: 9999;        /* siempre encima */
 }
 
-@media print {
-  .boton {
-    display: none !important; /* ocultar al imprimir/PDF */
-  }
+.boton:disabled {
+  opacity: 0.7;
+  cursor: wait;
 }
-
-
 
 /* Ocultar en impresión */
 @media print {
-  .no-print {
+  .no-print,
+  .boton {
     display: none !important;
   }
 }

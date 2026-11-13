@@ -1,5 +1,5 @@
 ---
-import "./src/styles/global.css";
+import "../styles/global.css";
 import PdfDownload from "../components/PdfDownload.jsx";
 
 const items = [
@@ -11,8 +11,15 @@ const subtotal = items.reduce(
 	(sum, item) => sum + item.quantity * item.unitPrice,
 	0,
 );
-const iva = subtotal * 0.19;
+const IVA_RATE = 0.19;
+const iva = subtotal * IVA_RATE;
 const total = subtotal + iva;
+const currency = new Intl.NumberFormat("es-CO", {
+	style: "currency",
+	currency: "COP",
+});
+const formatCOP = (value: number) => currency.format(value);
+
 const today = new Date().toLocaleDateString("es-CO", {
 	year: "numeric",
 	month: "long",
@@ -26,7 +33,8 @@ const today = new Date().toLocaleDateString("es-CO", {
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Orden de Cobro</title>
-		<link rel="stylesheet" href="/src/styles/global.css" />
+		<meta name="description" content="Plantilla de orden de cobro descargable en PDF" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 	</head>
 	<body>
 		<div class="container" id="orden-cobro">
@@ -73,18 +81,8 @@ const today = new Date().toLocaleDateString("es-CO", {
 								<tr>
 									<td>{item.description}</td>
 									<td>{item.quantity}</td>
-									<td>
-										{new Intl.NumberFormat("es-CO", {
-											style: "currency",
-											currency: "COP",
-										}).format(item.unitPrice)}
-									</td>
-									<td>
-										{new Intl.NumberFormat("es-CO", {
-											style: "currency",
-											currency: "COP",
-										}).format(item.quantity * item.unitPrice)}
-									</td>
+									<td>{formatCOP(item.unitPrice)}</td>
+									<td>{formatCOP(item.quantity * item.unitPrice)}</td>
 								</tr>
 							))
 						}
@@ -97,36 +95,15 @@ const today = new Date().toLocaleDateString("es-CO", {
 				<div>
 					<div class="row">
 						<span>Subtotal:</span>
-						<span>
-							{
-								new Intl.NumberFormat("es-CO", {
-									style: "currency",
-									currency: "COP",
-								}).format(subtotal)
-							}
-						</span>
+						<span>{formatCOP(subtotal)}</span>
 					</div>
 					<div class="row">
-						<span>IVA (19%):</span>
-						<span>
-							{
-								new Intl.NumberFormat("es-CO", {
-									style: "currency",
-									currency: "COP",
-								}).format(iva)
-							}
-						</span>
+						<span>IVA ({IVA_RATE * 100}%):</span>
+						<span>{formatCOP(iva)}</span>
 					</div>
 					<div class="row bold total">
 						<span>Total:</span>
-						<span>
-							{
-								new Intl.NumberFormat("es-CO", {
-									style: "currency",
-									currency: "COP",
-								}).format(total)
-							}
-						</span>
+						<span>{formatCOP(total)}</span>
 					</div>
 				</div>
 			</div>
